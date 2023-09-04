@@ -1,0 +1,26 @@
+<body>
+
+<h1>HTTP 1.1</h1>
+<a href="http://localhost:8080/hello">Hello. respond immediately</a>
+<br>
+<br>
+<button onclick="callService('http://localhost:8080/ping')">Ping. respond in 5 seconds</button>
+
+<h1>HTTP 2</h1>
+<a href="https://localhost:8443/hello">Hello. respond immediately</a>
+<br>
+<br>
+<button onclick="callService('https://localhost:8443/ping')">Ping. respond in 5 seconds</button>
+
+<script>
+    function callService(myUrl) {
+        fetch(myUrl)
+            .then(response => {
+                console.log(response);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+</script>
+</body>
