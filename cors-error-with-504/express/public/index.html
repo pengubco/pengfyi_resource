@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Send /hello</title>
+</head>
+
+<body>
+	<div>
+		<ol>
+			<li>
+				<div>Open the Developer Tools.</div>
+			</li>
+			<br>
+			<li>
+				<button id="btn1">Click to fetch http://localhost:8082/hello</button>
+			</li>
+			<br>
+			<li>
+				<div>Look at the Console tab and the Network tab from the developer tools.</div>
+			</li>
+			<br>
+		</ol>
+	</div>
+	<script>
+		const button = document.getElementById('btn1');
+
+		button.addEventListener('click', () => {
+			fetch('http://localhost:8082/hello', {
+				mode: 'cors',
+				// Set a header so that the request does not qualify as simple request. 
+				// That would force the FE to send preflight request. 
+				headers: {
+					"Header1": "Value1"
+				},
+			})
+				.then(response => response.text())
+				.then(data => console.log(data))
+				.catch(error => console.error('Error:', error));
+		});
+	</script>
+</body>
+
+</html>
