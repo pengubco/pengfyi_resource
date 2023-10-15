@@ -1,0 +1,19 @@
+lifetimeInSeconds: 70 # how long does the load runner run.
+concurrentRunners: 3 # how many task runners to run concurrently.
+taskRunners: # definitions of each task runner.
+  - taskRunner:
+    runner: 
+      lifetimeInSeconds: 30 # how long does the task runner run.
+      cycleIntervalInSeconds: 5 # how long does the task runner wait before next cycle.
+      jitterInSeconds: 2 # jitter to add on top of cycleIntervalInSeconds.
+    task: # definition of a task
+      type: "foo" # type of a task. Think it as a name of a template.
+      message: "Hello" # parameters specific to the given type of task.
+  - taskRunner:
+    runner: 
+      lifetimeInSeconds: 20
+      cycleIntervalInSeconds: 2
+      jitterInSeconds: 1
+    task:
+      type: "foo"
+      message: "World"

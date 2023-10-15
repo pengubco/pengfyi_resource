@@ -1,3 +1,4 @@
 go 1.21.0
 
 use ./k-th-number-in-two-sorted-arrays
+use ./simple-loadtest
