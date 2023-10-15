@@ -1,0 +1,1 @@
+This is the supporting code for [A simple and customizable LoadTest tool in Go](https://peng.fyi/post/simple-customizable-loadtest/).
