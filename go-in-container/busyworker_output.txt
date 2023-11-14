@@ -1,0 +1,42 @@
+bash version:  5.2.15(1)-release
+cpus=0.2 numberOfBusyWorkers=100 busyWorkSize=1000000
+GOMAXPROCS=1
+average time taken 6.4
+average time taken 9.3
+average time taken 9.3
+GOMAXPROCS=2
+average time taken 88.1
+average time taken 93.2
+average time taken 94.0
+GOMAXPROCS=3
+average time taken 124.5
+average time taken 124.3
+average time taken 125.5
+GOMAXPROCS=4
+average time taken 141.6
+average time taken 144.8
+average time taken 157.9
+GOMAXPROCS=5
+average time taken 115.3
+average time taken 118.9
+average time taken 166.2
+GOMAXPROCS=6
+average time taken 114.4
+average time taken 120.5
+average time taken 127.3
+GOMAXPROCS=7
+average time taken 118.8
+average time taken 120.7
+average time taken 150.1
+GOMAXPROCS=8
+average time taken 146.6
+average time taken 171.3
+average time taken 180.7
+GOMAXPROCS=9
+average time taken 127.9
+average time taken 139.9
+average time taken 153.9
+GOMAXPROCS=10
+average time taken 121.8
+average time taken 157.0
+average time taken 154.0
