@@ -1,3 +1,5 @@
+// Code and test for blog
+// https://peng.fyi/post/interview/breakdown-analysis-nested-json/
 package breakdowanalysisnestedjson
 
 type Event struct {
