@@ -4,3 +4,4 @@ use ./k-th-number-in-two-sorted-arrays
 use ./simple-loadtest
 use ./gomaxprocs-in-container
 use ./interview
+use ./quick-examples
