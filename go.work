@@ -1,7 +1,8 @@
-go 1.21.5
+go 1.22.0
 
 use ./k-th-number-in-two-sorted-arrays
 use ./simple-loadtest
 use ./gomaxprocs-in-container
 use ./interview
 use ./quick-examples
+use ./cpu-cache-and-memory
