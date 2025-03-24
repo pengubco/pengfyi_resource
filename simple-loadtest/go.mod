@@ -1,6 +1,6 @@
 module peng.fyi/simple-loadtest
 
-go 1.22.0
+go 1.24.0
 
 require (
 	github.com/google/uuid v1.3.1
