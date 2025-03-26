@@ -9,7 +9,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// This is the source code used for the post.
+// This is the source code used for the post https://peng.fyi/post/lessons-from-an-errgroup-and-context-mishap/
 
 func main() {
 	group, ctx := errgroup.WithContext(context.Background())
