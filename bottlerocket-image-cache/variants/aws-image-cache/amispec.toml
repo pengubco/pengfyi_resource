@@ -1,9 +1,9 @@
 # Merged into the AMI registration. In addition to the root and data volumes
 # that every Bottlerocket AMI has, instances launched from this AMI get an
-# empty 20 GiB workload volume at /dev/xvdc. No snapshot-id means EBS creates
+# empty 20 GiB workload volume at /dev/xvdb. No snapshot-id means EBS creates
 # it blank, so a customer managed KMS key can encrypt it without first
 # decrypting anything of ours. image-cache-release formats it on first boot.
-["/dev/xvdc".ebs]
+["/dev/xvdb".ebs]
 volume-type = "gp3"
 volume-size = 20
 delete-on-termination = true

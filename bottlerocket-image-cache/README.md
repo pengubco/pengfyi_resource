@@ -6,7 +6,7 @@ workload volume. Boot an instance from the AMI and the images are already there;
 pulls them, and the volume that holds everything containerd writes starts out blank.
 
 The companion blog post explains why and walks through the mechanics:
-[Shipping container images on the Bottlerocket root volume](https://peng.fyi/post/container-images-on-the-bottlerocket-root-volume/).
+[Shipping container images on the Bottlerocket root volume](https://peng.fyi/post/pre-load-container-images-on-the-bottlerocket-read-only-root-fs-volume/).
 
 ## How it works
 
@@ -20,9 +20,9 @@ AMI build    packages/image-cache          untar to /usr/share/image-cache (root
                                            var-lib-image\x2dcache.mount: overlay, context=local_t
              packages/image-cache-tools    /usr/bin/image-cache-link (Go)
              packages/image-cache-release  the boot units below
-             variants/aws-image-cache      the variant; amispec.toml adds a blank /dev/xvdc
+             variants/aws-image-cache      the variant; amispec.toml adds a blank /dev/xvdb
 
-first boot   check-workload-volume.service    blkid /dev/xvdc, skip the next two on reboot
+first boot   check-workload-volume.service    blkid /dev/xvdb, skip the next two on reboot
              format-workload-volume.service   mkfs.ext4 -L WORKLOAD
              mnt-workload.mount               LABEL=WORKLOAD -> /mnt/workload
              var-lib-image\x2dcache.mount     /usr/share/image-cache -> /var/lib/image-cache
@@ -120,8 +120,9 @@ cp Infra.toml.example Infra.toml   # or: export PUBLISH_REGIONS=us-west-2
 cargo make ami
 ```
 
-The AMI gets three block device mappings: `/dev/xvda` (root, from the built image), `/dev/xvdb`
-(Bottlerocket's data volume, from the built image), and `/dev/xvdc` (20 GiB blank gp3, from
+The AMI gets two block device mappings: `/dev/xvda` (the root volume, from the built image, with
+the read-only root partition and Bottlerocket's writable data partition on it) and `/dev/xvdb`
+(the workload volume, 20 GiB blank gp3, from
 [variants/aws-image-cache/amispec.toml](variants/aws-image-cache/amispec.toml)). The AMI ID is
 printed and written to `build/images/x86_64-aws-image-cache/latest/bottlerocket-aws-image-cache-x86_64-amis.json`.
 
@@ -147,7 +148,7 @@ aws ec2 run-instances \
 ```
 
 To encrypt the workload volume with your own KMS key, add a `--block-device-mappings` override
-for `/dev/xvdc` with `Encrypted=true,KmsKeyId=...`. Nothing on the host changes; the volume still
+for `/dev/xvdb` with `Encrypted=true,KmsKeyId=...`. Nothing on the host changes; the volume still
 arrives blank and gets formatted on first boot.
 
 Connect through SSM to the control container, then enter the admin container and drop to the host:
@@ -167,8 +168,8 @@ Now on the host:
 # findmnt /var/lib/image-cache /mnt/workload /var/lib/containerd
 TARGET              SOURCE                                   FSTYPE  OPTIONS
 /var/lib/image-cache overlay                                 overlay ro,...,lowerdir=/usr/share/image-cache:/var/lib/image-cache,context=...local_t...
-/mnt/workload       /dev/nvme2n1                             ext4    rw,...
-/var/lib/containerd /dev/nvme2n1[/containerd]                ext4    rw,...
+/mnt/workload       /dev/nvme1n1                             ext4    rw,...
+/var/lib/containerd /dev/nvme1n1[/containerd]                ext4    rw,...
 
 # ls -l /var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots | head -3
 lrwxrwxrwx. 1 root root 59 ... 1 -> /var/lib/image-cache/io.containerd.snapshotter.v1.overlayfs/snapshots/1

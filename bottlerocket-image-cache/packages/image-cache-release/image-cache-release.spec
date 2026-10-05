@@ -1,5 +1,5 @@
 # image-cache-release owns the workload volume: the second EBS volume attached
-# to the instance as /dev/xvdc. It is formatted on first boot, mounted at
+# to the instance as /dev/xvdb. It is formatted on first boot, mounted at
 # /mnt/workload, seeded with symlinks into the image cache, and bind mounted
 # over /var/lib/containerd before containerd starts. See README.md.
 Name: %{_cross_os}image-cache-release

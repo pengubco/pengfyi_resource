@@ -2,8 +2,8 @@
 Description=Check whether the workload volume already has a filesystem
 DefaultDependencies=no
 Before=local-fs.target
-Requires=dev-disk-by\x2debs\x2did-xvdc.device
-After=dev-disk-by\x2debs\x2did-xvdc.device
+Requires=dev-disk-by\x2debs\x2did-xvdb.device
+After=dev-disk-by\x2debs\x2did-xvdb.device
 RefuseManualStart=true
 RefuseManualStop=true
 
@@ -14,7 +14,7 @@ StandardError=journal+console
 
 # On a reboot the volume already carries a filesystem and containerd state.
 # Leave a sentinel so the format and prepare steps stay out of the way.
-ExecCondition=/sbin/blkid -o value -s TYPE /dev/disk/by-ebs-id/xvdc
+ExecCondition=/sbin/blkid -o value -s TYPE /dev/disk/by-ebs-id/xvdb
 ExecStart=/usr/bin/touch /run/workload-volume-has-filesystem
 
 [Install]

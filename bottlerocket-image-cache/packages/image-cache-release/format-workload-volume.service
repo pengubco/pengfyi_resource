@@ -1,9 +1,9 @@
 [Unit]
-Description=Format the workload volume (/dev/xvdc)
+Description=Format the workload volume (/dev/xvdb)
 DefaultDependencies=no
 Before=local-fs.target
-Requires=dev-disk-by\x2debs\x2did-xvdc.device check-workload-volume.service
-After=dev-disk-by\x2debs\x2did-xvdc.device check-workload-volume.service
+Requires=dev-disk-by\x2debs\x2did-xvdb.device check-workload-volume.service
+After=dev-disk-by\x2debs\x2did-xvdb.device check-workload-volume.service
 RefuseManualStart=true
 RefuseManualStop=true
 ConditionPathExists=!/run/workload-volume-has-filesystem
@@ -12,7 +12,7 @@ ConditionPathExists=!/run/workload-volume-has-filesystem
 Type=oneshot
 RemainAfterExit=true
 StandardError=journal+console
-ExecStart=/sbin/mkfs -t ext4 -L WORKLOAD /dev/disk/by-ebs-id/xvdc
+ExecStart=/sbin/mkfs -t ext4 -L WORKLOAD /dev/disk/by-ebs-id/xvdb
 
 [Install]
 WantedBy=local-fs.target
