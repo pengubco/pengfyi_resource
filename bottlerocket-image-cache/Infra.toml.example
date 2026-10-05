@@ -1,0 +1,5 @@
+# Copy to Infra.toml. Only the region list is needed to register an AMI with
+# `cargo make ami`; see tools/pubsys/Infra.toml.example in the bottlerocket
+# repository for the full schema.
+[aws]
+regions = ["us-west-2"]

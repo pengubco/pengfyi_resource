@@ -1,0 +1,19 @@
+[workspace]
+resolver = "1"
+members = [
+    "packages/image-cache",
+    "packages/image-cache-release",
+    "packages/image-cache-tools",
+    "packages/settings-defaults",
+    "packages/settings-migrations",
+    "packages/settings-plugins",
+
+    "variants/aws-image-cache",
+]
+
+[profile.dev]
+debug = false
+opt-level = 'z'
+
+[profile.dev.build-override]
+opt-level = 'z'

@@ -1,0 +1,17 @@
+[Unit]
+Description=Image cache relabeled for containerd (/var/lib/image-cache)
+DefaultDependencies=no
+Conflicts=umount.target
+Before=umount.target
+Before=local-fs.target
+RequiresMountsFor=/var
+
+[Mount]
+What=overlay
+Where=/var/lib/image-cache
+Type=overlay
+# systemd creates the mount point, which doubles as the second lower layer.
+Options=lowerdir=/usr/share/image-cache:/var/lib/image-cache,context=system_u:object_r:local_t:s0
+
+[Install]
+WantedBy=local-fs.target

@@ -1,0 +1,155 @@
+[config]
+skip_core_tasks = true
+default_to_workspace = false
+
+[env]
+BUILDSYS_ROOT_DIR = "${CARGO_MAKE_WORKING_DIRECTORY}"
+
+# Twoliter release to install. Keep in sync with the upstream Bottlerocket
+# release that the kit versions in Twoliter.toml come from.
+TWOLITER_VERSION = "v0.25.0"
+TWOLITER_SHA256_AARCH64 = "04772bbbdfed2d61c90bfc368ecf852e7ed67126e9ad5c9972e70fb464475658"
+TWOLITER_SHA256_X86_64 = "7d0460cc923555b2af879a47c636b5296d912805b130e82f15808946d1bbf4d4"
+TWOLITER_REPO = "https://github.com/bottlerocket-os/twoliter"
+TWOLITER_REUSE_EXISTING_INSTALL = "true"
+TWOLITER_ALLOW_BINARY_INSTALL = "true"
+TWOLITER_ALLOW_SOURCE_INSTALL = "true"
+TWOLITER_SKIP_VERSION_CHECK = "false"
+TWOLITER_INSTALL_DIR = "${BUILDSYS_ROOT_DIR}/tools/twoliter"
+TWOLITER_LOG_LEVEL = "info"
+TWOLITER_PROJECT = "${BUILDSYS_ROOT_DIR}/Twoliter.toml"
+
+UNAME_ARCH = { script = ['uname -m'] }
+BUILDSYS_ARCH = { script = ['echo "${BUILDSYS_ARCH:-${UNAME_ARCH}}"'] }
+BUILDSYS_VARIANT = { script = ['echo "${BUILDSYS_VARIANT:-aws-image-cache}"'] }
+BUILDSYS_TOOLS_DIR = "${BUILDSYS_ROOT_DIR}/tools"
+BUILDSYS_SBKEYS_DIR = "${BUILDSYS_ROOT_DIR}/sbkeys"
+CARGO_HOME = "${BUILDSYS_ROOT_DIR}/.cargo"
+
+# The settings crates depend on git repositories. Let cargo shell out to git so
+# that any `url.<base>.insteadOf` rewrites in the developer's git config apply.
+CARGO_NET_GIT_FETCH_WITH_CLI = "true"
+
+# Where build-image-cache.sh writes the tarball that packages/image-cache consumes.
+IMAGE_CACHE_TAR = "${BUILDSYS_ROOT_DIR}/packages/image-cache/image-cache.tar"
+
+[env.development]
+TWOLITER = "${TWOLITER_INSTALL_DIR}/twoliter"
+
+[tasks.install-twoliter]
+script_runner = "bash"
+script = [
+'''
+declare -a flags
+
+if [ "${TWOLITER_REUSE_EXISTING_INSTALL}" = "true" ]; then
+   flags+=("--reuse-existing-install")
+fi
+
+if [ "${TWOLITER_ALLOW_BINARY_INSTALL}" = "true" ]; then
+   if [ "${UNAME_ARCH}" = "aarch64" ]; then
+      flags+=("--allow-binary-install" "${TWOLITER_SHA256_AARCH64}")
+   else
+      flags+=("--allow-binary-install" "${TWOLITER_SHA256_X86_64}")
+   fi
+fi
+
+if [ "${TWOLITER_ALLOW_SOURCE_INSTALL}" = "true" ]; then
+   flags+=("--allow-from-source")
+fi
+
+if [ "${TWOLITER_SKIP_VERSION_CHECK}" = "true" ]; then
+   flags+=("--skip-version-check")
+fi
+
+"${BUILDSYS_TOOLS_DIR}/install-twoliter.sh" \
+  --repo "${TWOLITER_REPO}" \
+  --version "${TWOLITER_VERSION}" \
+  --directory "${TWOLITER_INSTALL_DIR}" \
+  "${flags[@]}"
+'''
+]
+
+[tasks.run-twoliter]
+dependencies = ["install-twoliter"]
+command = "${TWOLITER}"
+args = [
+    "--log-level=${TWOLITER_LOG_LEVEL}",
+    "make",
+    "${CARGO_MAKE_TASK}",
+    "--project-path=${TWOLITER_PROJECT}",
+    "--cargo-home=${CARGO_HOME}",
+    "--arch=${BUILDSYS_ARCH}",
+    "--",
+    "${@}",
+]
+
+[tasks.update-lock]
+dependencies = ["install-twoliter"]
+script_runner = "bash"
+script = ['''
+"${TWOLITER}" --log-level="${TWOLITER_LOG_LEVEL}" update --project-path="${TWOLITER_PROJECT}"
+''']
+
+[tasks.fetch]
+run_task = "run-twoliter"
+
+[tasks.fetch-sdk]
+run_task = "run-twoliter"
+
+# Builds the image cache tarball that packages/image-cache installs into the
+# root volume. Runs containerd in a container, so it needs Docker and a
+# privileged container, not Twoliter.
+[tasks.build-image-cache]
+script_runner = "bash"
+script = ['''
+"${BUILDSYS_ROOT_DIR}/image-cache/build-image-cache.sh" "${IMAGE_CACHE_TAR}"
+''']
+
+[tasks.check-image-cache]
+script_runner = "bash"
+script = ['''
+if [ ! -s "${IMAGE_CACHE_TAR}" ]; then
+  echo "Missing ${IMAGE_CACHE_TAR}. Run 'cargo make build-image-cache' first." >&2
+  exit 1
+fi
+''']
+
+[tasks.build-package]
+dependencies = ["check-image-cache"]
+run_task = "run-twoliter"
+
+[tasks.build-variant]
+dependencies = ["check-image-cache"]
+run_task = "run-twoliter"
+
+[tasks.build]
+alias = "build-variant"
+
+[tasks.default]
+alias = "build-variant"
+
+[tasks.ami]
+run_task = "run-twoliter"
+
+[tasks.grant-ami]
+run_task = "run-twoliter"
+
+[tasks.revoke-ami]
+run_task = "run-twoliter"
+
+[tasks.validate-ami]
+run_task = "run-twoliter"
+
+[tasks.ssm]
+run_task = "run-twoliter"
+
+[tasks.clean]
+run_task = "run-twoliter"
+
+[tasks.clean-image-cache]
+script_runner = "bash"
+script = ['''
+rm -f "${IMAGE_CACHE_TAR}"
+rm -rf "${BUILDSYS_ROOT_DIR}/image-cache/build"
+''']

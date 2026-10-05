@@ -1,0 +1,18 @@
+[Unit]
+Description=Seed the empty workload volume with links into the image cache
+DefaultDependencies=no
+Before=local-fs.target
+RequiresMountsFor=/mnt/workload /var/lib/image-cache
+RefuseManualStart=true
+RefuseManualStop=true
+ConditionPathExists=!/run/workload-volume-has-filesystem
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+StandardError=journal+console
+ExecStart=/usr/bin/mkdir -p /mnt/workload/containerd
+ExecStart=/usr/bin/image-cache-link --root /mnt/workload/containerd --cache /var/lib/image-cache
+
+[Install]
+WantedBy=local-fs.target
